@@ -1,0 +1,96 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2312                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+FoamFile
+{
+    version         2;
+    format          ascii;
+    class           dictionary;
+    location        "system";
+    object          controlDict;
+}
+
+application     sprayFoam;
+
+startFrom       startTime;
+
+startTime       0.0026;
+
+stopAt          endTime;
+
+endTime         0.00263;
+
+deltaT          1e-08;
+
+adjustTimeStep  yes;
+
+maxCo           0.35;
+
+maxDeltaT       1e-07;
+
+writeControl    adjustableRunTime;
+
+writeInterval   1e-05;
+
+purgeWrite      0;
+
+writeFormat     binary;
+
+writePrecision  10;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   8;
+
+runTimeModifiable yes;
+
+functions
+{
+    probe1_pressure
+    {
+        type            probes;
+        libs            ( "libsampling.so" );
+        name            probe1;
+        writeControl    adjustableRunTime;
+        writeInterval   1e-05;
+        timeStart       0;
+        fields          ( p U k );
+        probeLocations  ( ( 0.01 0.022 0 ) ( 0.01 0.01 0 ) ( 0.06 0.01 0 ) );
+    }
+    probe_HRR
+    {
+        type            probes;
+        libs            ( "libsampling.so" );
+        name            probe_HRR;
+        writeControl    adjustableRunTime;
+        writeInterval   1e-05;
+        timeStart       0.003;
+        fields          ( Qdot );
+        probeLocations  ( ( 0.01 0.01 0 ) ( 0.06 0.01 0 ) );
+    }
+    fieldAverage1
+    {
+        type            fieldAverage;
+        libs            ( "libfieldFunctionObjects.so" );
+        writeControl    writeTime;
+        timeStart       0.005;
+        fields          ( U { mean on ; prime2Mean on ; base time ; } p { mean on ; prime2Mean on ; base time ; } T { mean on ; prime2Mean off ; base time ; } );
+    }
+    CourantNo1
+    {
+        type            CourantNo;
+        libs            ( "libfieldFunctionObjects.so" );
+        writeControl    writeTime;
+        writeInterval   1;
+    }
+}
+
+
+// ************************************************************************* //

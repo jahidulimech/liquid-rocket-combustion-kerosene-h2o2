@@ -1,0 +1,64 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2312                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0";
+    object      C12H26;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// Liu et al. (2023) Phys. Fluids 35, 125141
+// C12H26 (n-dodecane) vapor mass fraction
+// 2D ideal-gas benchmark: supplied as pre-vaporized fuel at fuelInlet
+// Single-step: C12H26 + 18.5 O2 -> 12 CO2 + 13 H2O
+
+dimensions      [0 0 0 0 0 0 0];
+
+internalField   uniform 0.0;
+
+boundaryField
+{
+    oxidizerInlet
+    {
+        type            fixedValue;
+        value           uniform 0.0;
+    }
+
+    fuelInlet
+    {
+        // FIXED: was zeroGradient (spray case -- no gas coming in).
+        // Now the fuel annulus injects pure C12H26 vapor: Y_C12H26 = 1.0.
+        type            fixedValue;
+        value           uniform 1.0;
+    }
+
+    outlet
+    {
+        type            inletOutlet;
+        inletValue      uniform 0.0;
+        value           uniform 0.0;
+    }
+
+    walls
+    {
+        type            zeroGradient;
+    }
+
+    wedge_back
+    {
+        type            wedge;
+    }
+
+    wedge_front
+    {
+        type            wedge;
+    }
+}
+// ************************************************************************* //

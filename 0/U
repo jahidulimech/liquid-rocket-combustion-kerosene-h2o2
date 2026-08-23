@@ -1,0 +1,96 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2312                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    location    "0";
+    object      U;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// Liu et al. (2023) Phys. Fluids 35, 125141  -- Table II
+//
+// OXIDIZER INLET (post, x=-0.170), 2D axisymmetric benchmark:
+//   Full mdot = 0.231 kg/s,  T = 1030 K,  42% O2 + 58% H2O
+//   Post area (full) = pi * Ro^2 = pi * 0.01025^2 = 3.3006e-4 m^2
+//   rho at 1030 K, 2.38 MPa, 42/58 O2/H2O perfect gas mixture: ~6.13 kg/m^3
+//   U_ox = 0.231 / (6.13 * 3.3006e-4) = ~114 m/s
+//   NOTE: paper states choked oxidizer post -> sonic condition at dump plane
+//   Use fixedValue at post inlet with subsonic estimate,
+//   OR use flowRateInletVelocity with WEDGE-SCALED mdot.
+//
+//   WEDGE SCALING (5 deg = 5/360 of full circle):
+//   mdot_wedge = 0.231 * (5/360) = 3.208e-3 kg/s
+//
+// FUEL INLET (annulus at dump plane x=0, r=Ro->Rc):
+//   For the 2D ideal-gas validation, n-dodecane is pre-vaporized.
+//   Full mdot = 0.037 kg/s; wedge-scaled mdot = 5.139e-4 kg/s.
+//   At 2.38 MPa and 700 K, rho_C12H26 is about 69.6 kg/m^3.
+//
+// INTERNAL FIELD:
+//   Start from rest (0 m/s) for numerical stability.
+//   Let the solver develop the flow from BCs.
+//   A cold start avoids the T=7000K explosion seen with (50 0 0).
+
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform (0 0 0);    // start from rest for stability
+
+boundaryField
+{
+    oxidizerInlet
+    {
+        // flowRateInletVelocity: computes U from mdot and local rho
+        // Uses WEDGE-SCALED mass flow rate: 0.231 * (5/360) = 3.208e-3 kg/s
+        type            flowRateInletVelocity;
+        massFlowRate    3.208e-3;       // kg/s  wedge-scaled (5/360 of full)
+        rhoInlet        6.13;          // kg/m^3 initial guess (1030 K, 2.38 MPa mixture)
+        value           uniform (114.0 0 0);  // initial face value (m/s)
+    }
+
+    fuelInlet
+    {
+        // 2D axisymmetric ideal-gas benchmark: gas-phase C12H26 enters through the annulus.
+        // Wedge-scaled fuel mass flow: 0.037 * (5/360) = 5.139e-4 kg/s.
+        type            flowRateInletVelocity;
+        massFlowRate    5.139e-4;
+        rhoInlet        69.6;
+        value           uniform (0.42 0 0);
+    }
+
+    outlet
+    {
+        // waveTransmissive: non-reflecting for acoustically choked nozzle
+        // gamma for combustion products ~1.25
+        type            waveTransmissive;
+        field           U;
+        psi             thermo:psi;
+        gamma           1.25;
+        fieldInf        (0 0 0);
+        lInf            0.02;           // ~nozzle length scale (m)
+        value           uniform (0 0 0);
+    }
+
+    walls
+    {
+        type            noSlip;
+    }
+
+    wedge_back
+    {
+        type            wedge;
+    }
+
+    wedge_front
+    {
+        type            wedge;
+    }
+}
+
+// ************************************************************************* //

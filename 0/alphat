@@ -1,0 +1,62 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2312                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0";
+    object      alphat;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// Liu et al. (2023) Phys. Fluids 35, 125141
+// Turbulent thermal diffusivity [kg/(m·s)]
+// alphat = rho * nut / Pr_t
+// rho=3.54 kg/m^3, nut=1e-4 m^2/s, Pr_t=0.9 -> alphat ~ 3.93e-4 kg/(m·s)
+
+dimensions      [1 -1 -1 0 0 0 0];
+
+internalField   uniform 3.93e-4;
+
+boundaryField
+{
+    oxidizerInlet
+    {
+        type            calculated;
+        value           uniform 3.93e-4;
+    }
+
+    fuelInlet
+    {
+        type            calculated;
+        value           uniform 3.93e-4;
+    }
+
+    outlet
+    {
+        type            zeroGradient;
+    }
+
+    walls
+    {
+        type            compressible::alphatWallFunction;
+        Prt             0.9;
+        value           uniform 0.0;
+    }
+
+    wedge_back
+    {
+        type            wedge;
+    }
+
+    wedge_front
+    {
+        type            wedge;
+    }
+}
+// ************************************************************************* //

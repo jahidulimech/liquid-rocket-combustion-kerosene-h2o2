@@ -1,0 +1,124 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2312                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      thermoData;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// O2, H2O, CO2 coefficients taken directly from
+// /usr/lib/openfoam/openfoam2312/etc/thermoData/thermoData (verified)
+// C12H26 from Burcat database (not in OpenFOAM default thermoData)
+
+O2
+{
+    elements
+    {
+        O   2;
+    }
+    specie
+    {
+        molWeight   31.9988;
+    }
+    thermodynamics
+    {
+        Tlow        200;
+        Thigh       6000;
+        Tcommon     1000;
+        highCpCoeffs ( 3.66096 0.000656366 -1.4115e-07 2.05798e-11 -1.29913e-15 -1215.968790666667 3.41536 );
+        lowCpCoeffs  ( 3.78246 -0.00299673 9.8473e-06 -9.6813e-09 3.24373e-12 -1063.94 3.65768 );
+    }
+    transport
+    {
+        As          1.693e-6;
+        Ts          127.0;
+    }
+}
+
+H2O
+{
+    elements
+    {
+        H   2;
+        O   1;
+    }
+    specie
+    {
+        molWeight   18.0153;
+    }
+    thermodynamics
+    {
+        Tlow        200;
+        Thigh       6000;
+        Tcommon     1000;
+        highCpCoeffs ( 2.67704 0.00297318 -7.73769e-07 9.44335e-11 -4.269e-15 -29885.86340833333 6.88255 );
+        lowCpCoeffs  ( 4.19864 -0.0020364 6.52034e-06 -5.48793e-09 1.77197e-12 -30293.7 -0.849009 );
+    }
+    transport
+    {
+        As          1.860e-6;
+        Ts          1080.0;
+    }
+}
+
+C12H26
+{
+    elements
+    {
+        C   12;
+        H   26;
+    }
+    specie
+    {
+        molWeight   170.338;
+    }
+    thermodynamics
+    {
+        Tlow        200;
+        Thigh       5000;
+        Tcommon     1500;
+        highCpCoeffs ( 3.84707600e+1  8.74300700e-2  -3.10799800e-5  4.97920700e-9  -2.96203800e-13  -9.058945764312496e+4  -1.71661600e+2 );
+        lowCpCoeffs  ( -2.25636870e+0  1.26055990e-1  -7.90540870e-5  2.55197910e-8  -3.28555810e-12  -4.04386490e+4  4.40652270e+1 );
+    }
+    transport
+    {
+        As          1.512e-6;
+        Ts          524.0;
+    }
+}
+
+CO2
+{
+    elements
+    {
+        C   1;
+        O   2;
+    }
+    specie
+    {
+        molWeight   44.01;
+    }
+    thermodynamics
+    {
+        Tlow        200;
+        Thigh       6000;
+        Tcommon     1000;
+        highCpCoeffs ( 4.63651 0.00274146 -9.95898e-07 1.60387e-10 -9.16199e-15 -49024.935352 -1.9349 );
+        lowCpCoeffs  ( 2.35681 0.00898413 -7.12206e-06 2.4573e-09 -1.42885e-13 -48372 9.9009 );
+    }
+    transport
+    {
+        As          1.572e-6;
+        Ts          240.0;
+    }
+}
+
+// ************************************************************************* //

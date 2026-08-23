@@ -1,0 +1,108 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2312                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      sprayCloudProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// Liu et al. (2023) Phys. Fluids 35, 125141 -- 2D AXISYMMETRIC BENCHMARK
+//
+// CRITICAL: For the 2D axisymmetric benchmark, the authors explicitly
+// "ignored the atomization as well as evaporation processes of liquid kerosene"
+// and treated the fuel as pre-vaporized gaseous C12H26. This is NOT a spray
+// simulation. The spray model is fully deactivated here.
+//
+// Running Lagrangian parcels in a 5-deg wedge mesh causes parcel placement
+// failures near the axis of symmetry and leads to immediate blow-up.
+// Fuel is instead supplied as a gaseous boundary condition at fuelInlet.
+
+solution
+{
+    active                      false;   // SPRAY DISABLED for 2D gas case
+    coupled                     false;
+    transient                   yes;
+    cellValueSourceCorrection   off;
+
+    sourceTerms
+    {
+        schemes
+        {
+            rho         explicit 1;
+            U           explicit 1;
+            Yi          explicit 1;
+            h           explicit 1;
+            radiation   explicit 1;
+        }
+    }
+
+    interpolationSchemes
+    {
+        rho         cell;
+        U           cellPoint;
+        thermo:mu   cell;
+        T           cell;
+        Cp          cell;
+        kappa       cell;
+        p           cell;
+    }
+
+    integrationSchemes
+    {
+        U   Euler;
+        T   analytical;
+    }
+}
+
+constantProperties
+{
+    rho0            750;
+    T0              300;
+    Cp0             2200;
+    sigma0          0.0233;
+    epsilon0        1;
+    f0              0.5;
+    Pr              7.0;
+    Tvap            447.0;
+    Tbp             489.0;
+    LDevol          0;
+    hRetentionCoeff 1;
+    constantVolume  false;
+}
+
+subModels
+{
+    particleForces
+    {
+        // No forces needed -- cloud is inactive
+    }
+
+    injectionModels
+    {
+        // No injection -- fuel enters as gas at fuelInlet patch
+    }
+
+    atomizationModel        none;
+    breakupModel            none;
+    phaseChangeModel        none;
+    heatTransferModel       none;
+    compositionModel        none;
+    patchInteractionModel   none;
+    dispersionModel         none;
+    stochasticCollisionModel none;
+    surfaceFilmModel        none;
+    radiation               off;
+}
+
+cloudFunctions
+{}
+
+// ************************************************************************* //

@@ -1,0 +1,46 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2312                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      reactions;
+}
+
+// Ultra-soft ignition startup: one-hundred-thousandth of full Arrhenius A, temporary only.
+
+elements
+(
+    C
+    H
+    O
+);
+
+species
+(
+    O2
+    H2O
+    C12H26
+    CO2
+);
+
+reactions
+{
+    C12H26Combustion
+    {
+        type        irreversibleArrheniusReaction;
+        reaction    "C12H26^0.25 + 18.5O2^1.5 = 12CO2 + 13H2O";
+        A           5.0e3;
+        beta        0;
+        Ta          1897.1;
+    }
+}
+
+// ************************************************************************* //

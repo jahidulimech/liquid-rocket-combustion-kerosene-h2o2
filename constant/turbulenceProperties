@@ -1,0 +1,66 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2312                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      turbulenceProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// Liu et al. (2023) Phys. Fluids 35, 125141
+//
+// Paper Section II.A:
+//   "a one-equation eddy viscosity sub-grid turbulence model"
+//   Ck = 0.07 (empirical parameter)
+// Paper Section II.C:
+//   "In LES, a one-equation eddy viscosity sub-grid turbulence model
+//    (refs 50,59) combined with the PaSR sub-grid turbulent combustion model"
+// Reference 50: Tsang et al. (2014) Comput. Fluids 105:262
+// Reference 59: Vreman (2004) Phys. Fluids 16(10):3670
+
+simulationType  LES;
+
+LES
+{
+    // One-equation eddy viscosity model (k-equation SGS)
+    // nut = Ck * sqrt(k_sgs) * Delta
+    LESModel        kEqn;
+
+    turbulence      on;
+    printCoeffs     on;
+    delta           cubeRootVol;    // filter width = (cell volume)^(1/3)
+
+    kEqnCoeffs
+    {
+    	Ck      0.07;
+    	Ce      1.048;
+    	sigmaK  1.0;
+    	kMin    1e-10;
+    	
+    }
+
+    cubeRootVolCoeffs
+    {
+        deltaCoeff  1.0;
+    }
+
+    vanDriestCoeffs
+    {
+        delta       cubeRootVol;
+        A           26;
+        Cdelta      0.158;
+        cubeRootVolCoeffs
+        {
+            deltaCoeff 1;
+        }
+    }
+}
+
+// ************************************************************************* //

@@ -1,0 +1,31 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2312                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       uniformDimensionedVectorField;
+    location    "constant";
+    object      g;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// Gravity vector - required by sprayFoam for droplet body force calculation
+// (Table I: "Drag force: sphere" includes gravity)
+//
+// Liu et al. paper does NOT specify gravity orientation explicitly.
+// For this horizontal combustor (x=axial, y and z = transverse):
+// Gravity acts in -y direction (perpendicular to flow axis)
+// However, at these high flow speeds (150-320 m/s), gravity is negligible.
+// Setting g=0 is physically justified but sprayFoam requires this file.
+// Set to standard gravity in -y for completeness:
+
+dimensions      [0 1 -2 0 0 0 0];
+
+value           (0 0 0);
+
+// ************************************************************************* //

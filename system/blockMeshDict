@@ -1,0 +1,216 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2312                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  | CVRC -- Liu et al. (2023) Phys. Fluids 35,125141|
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// ====================================================================
+//  CVRC 2-D AXISYMMETRIC WEDGE MESH -- CORRECTED VERSION
+//  Liu et al. (2023) Phys. Fluids 35, 125141
+//
+//  PRIMARY 2D AXISYMMETRIC PATCH FIX:
+//  The inlet/outlet faces that touch the centerline are collapsed wedge
+//  triangles, but they still represent finite cross-sectional flow area.
+//  They must remain flow patches so mass-flow boundary conditions can drive
+//  the oxidizer post and the full nozzle throat.
+//
+//  Do not split these core inlet/outlet faces into empty axis patches here.
+//  That gives oxidizerInlet zero faces and removes the core outlet, which
+//  starves the case and causes pressure/density/turbulence blow-up.
+//
+//  mergeType points:
+//    Added per OpenFOAM Wiki axisymmetric tutorial recommendation.
+//    Merges duplicate axis points to prevent zero-length edges at axis.
+//
+//  GEOMETRY (Liu 2023 Table I -- unchanged):
+//    Oxidizer post:    x=-0.170 to 0.000,  r=0 to Ro=0.01025 m
+//    Combustion chamber: x=0.000 to 0.381, r=0 to Rc=0.02250 m
+//    Converging nozzle: x=0.381 to 0.401,  r=Rc->Rt (arc)
+//    Throat (outlet):  x=0.401,             r=Rt=0.01050 m
+//
+//  WEDGE: 5 degrees total, alpha=2.5 deg each side
+//    sin(2.5deg) = 0.043619387365336
+//    cos(2.5deg) = 0.999048221581858
+//    Ro=0.01025: y=0.010240244271, z=+/-0.000447098720
+//    Rc=0.02250: y=0.022478584986, z=+/-0.000981436216
+//    Rt=0.01050: y=0.010490006327, z=+/-0.000458003567
+//    Arc r=0.01350: y=0.013487150991, z=+/-0.000588861729
+//
+//  BLOCKS (5 total, ~27250 cells):
+//    B0: oxidizer post,      axis->Ro, x=-0.170->0.000, 100x25=2500
+//    B1: chamber inner,      axis->Ro, x=0.000->0.381,  400x25=10000
+//    B2: chamber outer,      Ro->Rc,   x=0.000->0.381,  400x30=12000
+//    B3: nozzle inner,       axis->Ro, x=0.381->0.401,  50x25=1250
+//    B4: nozzle outer,       Ro->Rt,   x=0.381->0.401,  50x30=1500
+//
+//  PATCHES:
+//    oxidizerInlet type patch  -- finite-area collapsed wedge face, B0 i-min
+//    fuelInlet     type patch  -- real annular quad face, B2 i-min
+//    outlet        type patch  -- full throat, B3+B4 i-max faces
+//    walls         type wall   -- post wall + chamber wall + nozzle arc
+//    wedge_back    type wedge  -- z<0 plane
+//    wedge_front   type wedge  -- z>0 plane
+//
+//  NOTE ON OXIDIZER INLET:
+//    B0 spans axis->Ro at x=-0.170. The i-min face is collapsed at the
+//    centerline but still has finite wedge-sector area, so it is the real
+//    oxidizer mass-flow inlet for this 2D axisymmetric benchmark.
+// ====================================================================
+
+// Required for correct axis handling -- merges duplicate axis points
+// Prevents zero-length edges and zero-area faces at axis
+mergeType points;
+
+scale 1;
+
+vertices
+(
+    // ─── x = -0.170 │ Oxidizer Post Inlet ───────────────────────────────
+    (-0.170   0.000000000000   0.000000000000)   //  0  axis
+    (-0.170   0.010240244271  -0.000447098720)   //  1  Ro, back
+    (-0.170   0.010240244271   0.000447098720)   //  2  Ro, front
+
+    // ─── x = 0.000 │ Dump Plane ─────────────────────────────────────────
+    ( 0.000   0.000000000000   0.000000000000)   //  3  axis
+    ( 0.000   0.010240244271  -0.000447098720)   //  4  Ro, back
+    ( 0.000   0.010240244271   0.000447098720)   //  5  Ro, front
+    ( 0.000   0.022478584986  -0.000981436216)   //  6  Rc, back
+    ( 0.000   0.022478584986   0.000981436216)   //  7  Rc, front
+
+    // ─── x = 0.381 │ Chamber Exit / Nozzle Entry ─────────────────────────
+    ( 0.381   0.000000000000   0.000000000000)   //  8  axis
+    ( 0.381   0.010240244271  -0.000447098720)   //  9  Ro, back
+    ( 0.381   0.010240244271   0.000447098720)   // 10  Ro, front
+    ( 0.381   0.022478584986  -0.000981436216)   // 11  Rc, back
+    ( 0.381   0.022478584986   0.000981436216)   // 12  Rc, front
+
+    // ─── x = 0.401 │ Nozzle Throat (Outlet) ─────────────────────────────
+    ( 0.401   0.000000000000   0.000000000000)   // 13  axis
+    ( 0.401   0.010240244271  -0.000447098720)   // 14  Ro, back
+    ( 0.401   0.010240244271   0.000447098720)   // 15  Ro, front
+    ( 0.401   0.010490006327  -0.000458003567)   // 16  Rt, back
+    ( 0.401   0.010490006327   0.000458003567)   // 17  Rt, front
+);
+
+blocks
+(
+    // B0: Oxidizer Post (axis->Ro, x=-0.170->0.000)
+    hex ( 0  3  4  1    0  3  5  2)
+    (100 25 1)
+    simpleGrading (1 4 1)
+
+    // B1: Chamber Inner Core (axis->Ro, x=0.000->0.381)
+    hex ( 3  8  9  4    3  8 10  5)
+    (400 25 1)
+    simpleGrading (1 4 1)
+
+    // B2: Chamber Outer Annulus (Ro->Rc, x=0.000->0.381)
+    hex ( 4  9 11  6    5 10 12  7)
+    (400 30 1)
+    simpleGrading (1 0.25 1)
+
+    // B3: Nozzle Inner Core (axis->Ro, x=0.381->0.401)
+    hex ( 8 13 14  9    8 13 15 10)
+    (50 25 1)
+    simpleGrading (0.3 4 1)
+
+    // B4: Nozzle Outer Annulus (Ro->Rt curved, x=0.381->0.401)
+    hex ( 9 14 16 11   10 15 17 12)
+    (50 30 1)
+    simpleGrading (0.3 0.25 1)
+);
+
+edges
+(
+    // Nozzle converging wall arcs (Rc->Rt, midpoint at x=0.391, r=0.01350)
+    arc 11 16 ( 0.391   0.013487150991  -0.000588861729)   // back face
+    arc 12 17 ( 0.391   0.013487150991   0.000588861729)   // front face
+);
+
+boundary
+(
+    // Oxidizer inlet: x=-0.170, r=0->Ro
+    // This collapsed-wedge face has finite area and must remain a flow patch.
+    oxidizerInlet
+    {
+        type patch;
+        faces
+        (
+            (0 2 1 0)
+        );
+    }
+
+    // Fuel inlet: x=0.000 annular face, r=Ro->Rc
+    fuelInlet
+    {
+        type patch;
+        faces
+        (
+            (4 5 7 6)
+        );
+    }
+
+    // Outlet: x=0.401 full throat, r=0->Rt
+    outlet
+    {
+        type patch;
+        faces
+        (
+            (13 15 14 13)
+            (14 15 17 16)
+        );
+    }
+
+    // Walls: no-slip adiabatic
+    walls
+    {
+        type wall;
+        faces
+        (
+            (1 4 5 2)
+            (6 7 12 11)
+            (11 12 17 16)
+        );
+    }
+
+    // Wedge back: z<0 plane at -2.5 degrees
+    wedge_back
+    {
+        type wedge;
+        faces
+        (
+            ( 0  1  4  3)
+            ( 3  4  9  8)
+            ( 4  6 11  9)
+            ( 8  9 14 13)
+            ( 9 11 16 14)
+        );
+    }
+
+    // Wedge front: z>0 plane at +2.5 degrees
+    wedge_front
+    {
+        type wedge;
+        faces
+        (
+            ( 0  3  5  2)
+            ( 3  8 10  5)
+            ( 5 10 12  7)
+            ( 8 13 15 10)
+            (10 12 17 15)
+        );
+    }
+);
+mergePatchPairs ();
+
+// ************************************************************************* //

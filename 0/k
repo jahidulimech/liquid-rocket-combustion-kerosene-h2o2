@@ -1,0 +1,75 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2312                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0";
+    object      k;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// Liu et al. (2023) Phys. Fluids 35, 125141
+//
+// Sub-grid scale (SGS) kinetic energy for one-equation eddy viscosity model
+// Paper Section II.A: "a one-equation eddy viscosity sub-grid turbulence model"
+//   (Ck=0.07 model constant, Ref: Vreman 2004 / Tsang et al. 2014)
+//
+// This is the SGS k (k_sgs), NOT the resolved TKE.
+//
+// Initialization:
+//   From turbulent intensity I=5% and U_ref=197.9 m/s (T=900K):
+//   k_sgs ~ 0.01 * 1.5*(U*I)^2 = 0.01 * 1.5*(197.9*0.05)^2 = 1.47 m^2/s^2
+//   (fraction of total TKE stored in SGS scales is small, ~1-5%)
+//
+//   For inlet: use "Turbulent Intensity Kinetic Energy Inlet" BC
+//   Paper: "turbulent kinetic energy values were obtained through
+//           interpolation based on calculation results" (i.e., from prior run)
+//   For initial run: use intensity-based estimate
+
+dimensions      [0 2 -2 0 0 0 0];
+
+internalField   uniform 0.446;
+
+boundaryField
+{
+    oxidizerInlet
+    {
+        type            fixedValue;
+        value           uniform 0.446;
+    }
+
+    fuelInlet
+    {
+        // Fuel inlet: lower velocity, estimate k from I=5%, U~20 m/s
+        // k_sgs ~ 0.01 * 1.5 * (20*0.05)^2 = 0.015
+        type            fixedValue;
+        value           uniform 0.01;
+    }
+
+    outlet
+    {
+        type            zeroGradient;
+    }
+
+    walls
+    {
+        type            fixedValue;
+        value           uniform 0.0;
+    }
+
+    wedge_back
+    {
+        type            wedge;
+    }
+
+    wedge_front
+    {
+        type            wedge;
+    }
+}

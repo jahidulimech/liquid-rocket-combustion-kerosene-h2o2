@@ -1,0 +1,61 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2312                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0";
+    object      O2;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// Liu et al. (2023) Phys. Fluids 35, 125141
+// O2 mass fraction - oxidizer stream: 42% O2 + 58% H2O (Table II)
+// O/F = 6.3, equivalence ratio phi = 0.553 (lean)
+
+dimensions      [0 0 0 0 0 0 0];
+
+internalField   uniform 0.42;
+
+boundaryField
+{
+    oxidizerInlet
+    {
+        type            fixedValue;
+        value           uniform 0.42;
+    }
+
+    fuelInlet
+    {
+        type            fixedValue;
+        value           uniform 0.0;
+    }
+
+    outlet
+    {
+        type            inletOutlet;
+        inletValue      uniform 0.42;
+        value           uniform 0.10;
+    }
+
+    walls
+    {
+        type            zeroGradient;
+    }
+
+    wedge_back
+    {
+        type            wedge;
+    }
+
+    wedge_front
+    {
+        type            wedge;
+    }
+}
+// ************************************************************************* //

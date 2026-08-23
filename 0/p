@@ -1,0 +1,63 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2312                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0";
+    object      p;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// Liu et al. (2023) Phys. Fluids 35, 125141
+// Chamber nominal pressure: 1.2 MPa
+// Outlet waveTransmissive far-field reference: 0.5 MPa
+
+dimensions      [1 -1 -2 0 0 0 0];
+
+internalField   uniform 2.38e6;
+
+boundaryField
+{
+    oxidizerInlet
+    {
+        type            zeroGradient;
+    }
+
+    fuelInlet
+    {
+        type            zeroGradient;
+    }
+
+    outlet
+    {
+        type            waveTransmissive;
+        field           p;
+        psi             thermo:psi;
+        gamma           1.3;
+        fieldInf        1.0e6;
+        lInf            0.05;
+        value           uniform 2.38e6;
+    }
+
+    walls
+    {
+        type            zeroGradient;
+    }
+
+    wedge_back
+    {
+        type            wedge;
+    }
+
+    wedge_front
+    {
+        type            wedge;
+    }
+}
+// ************************************************************************* //

@@ -1,0 +1,62 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2312                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0";
+    object      T;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// Liu et al. (2023) Phys. Fluids 35, 125141
+// T_ox = 1030 K for the 2D axisymmetric benchmark
+// T_fuel = 700 K for the 2D ideal-gas vapor benchmark
+// internalField starts at the oxidizer-post temperature for a gentle start
+
+dimensions      [0 0 0 1 0 0 0];
+
+internalField   uniform 1030;
+
+boundaryField
+{
+    oxidizerInlet
+    {
+        type            fixedValue;
+        value           uniform 1030;
+    }
+
+    fuelInlet
+    {
+        type            fixedValue;
+        value           uniform 700;
+    }
+
+    outlet
+    {
+    	type            inletOutlet;
+    	inletValue      uniform 1030;
+    	value           uniform 1030;
+    }
+
+    walls
+    {
+        type            zeroGradient;
+    }
+
+    wedge_back
+    {
+        type            wedge;
+    }
+
+    wedge_front
+    {
+        type            wedge;
+    }
+}
+// ************************************************************************* //

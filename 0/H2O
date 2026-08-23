@@ -1,0 +1,61 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2312                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0";
+    object      H2O;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// Liu et al. (2023) Phys. Fluids 35, 125141
+// H2O mass fraction - present in oxidizer (58%) and as combustion product
+// C12H26 + 18.5 O2 -> 12 CO2 + 13 H2O
+
+dimensions      [0 0 0 0 0 0 0];
+
+internalField   uniform 0.58;
+
+boundaryField
+{
+    oxidizerInlet
+    {
+        type            fixedValue;
+        value           uniform 0.58;
+    }
+
+    fuelInlet
+    {
+        type            fixedValue;
+        value           uniform 0.0;
+    }
+
+    outlet
+    {
+        type            inletOutlet;
+        inletValue      uniform 0.58;
+        value           uniform 0.40;
+    }
+
+    walls
+    {
+        type            zeroGradient;
+    }
+
+    wedge_back
+    {
+        type            wedge;
+    }
+
+    wedge_front
+    {
+        type            wedge;
+    }
+}
+// ************************************************************************* //
