@@ -16,3 +16,7 @@ This repository documents the numerical discretization schemes (`fvSchemes`) opt
 
 ## Requirements
 * **OpenFOAM v2312** (or compatible modern version)
+<img width="892" height="525" alt="Screenshot 2026-06-05 114031" src="https://github.com/user-attachments/assets/fc8c1163-af4b-45db-8618-ba5a3cff2c4d" />
+<img width="1145" height="677" alt="Screenshot 2026-05-27 172927" src="https://github.com/user-attachments/assets/32ae57e9-afa9-4a5e-8c51-4cbb5c52202d" />
+<img width="1087" height="412" alt="Screenshot 2026-06-06 102743" src="https://github.com/user-attachments/assets/87348706-6c1a-42a6-93fe-05d7cf6c67d2" />
+
